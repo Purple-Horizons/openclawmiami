@@ -8,16 +8,15 @@ const hosts = [
     description: "Miami's AI innovation lab and consultancy.",
     link: "https://purplehorizons.com",
   },
-];
-
-const venues = [
   {
     name: "The Lab Miami",
-    role: "Venue Partner",
+    role: "Partner",
     description: "Miami's original co-working & innovation space.",
     link: "https://thelabmiami.com",
   },
 ];
+
+const venues = [];
 
 const HostsSponsorsSection = () => {
   return (

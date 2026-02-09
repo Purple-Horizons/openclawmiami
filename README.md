@@ -1,111 +1,86 @@
+<div align="center">
+
+![OpenClaw Miami](public/og-image.png)
+
 # OpenClaw Miami
 
-Miami's community hub for [OpenClaw](https://github.com/anthropics/claude-code) — the open-source AI assistant with 145K+ GitHub stars.
+**Miami's community for the AI agent that's breaking the internet.**
 
-We bring together local builders, developers, and AI enthusiasts to explore and build with personal AI agents. Monthly meetups, setup assistance, and a growing community of 50+ Miami-based builders.
+[![MIT License](https://img.shields.io/badge/License-MIT-coral.svg)](https://opensource.org/licenses/MIT)
+[![Discord](https://img.shields.io/badge/Discord-Join%20Us-7289da?logo=discord&logoColor=white)](https://discord.com/channels/1456350064065904867/1464825842264703221)
+[![OpenClaw](https://img.shields.io/badge/OpenClaw-145K+%20Stars-yellow?logo=github)](https://github.com/openclaw/openclaw)
+[![Meetups](https://img.shields.io/badge/Meetups-Monthly-ff6b6b)](https://lu.ma/openclaw)
+[![Built with Vite](https://img.shields.io/badge/Built%20with-Vite-646CFF?logo=vite&logoColor=white)](https://vitejs.dev/)
 
-## Getting Started
+[Website](https://openclawmiami.com) · [Events](https://lu.ma/openclaw) · [Discord](https://discord.com/channels/1456350064065904867/1464825842264703221) · [Contribute](#contributing)
 
-**Prerequisites:** Node.js 18+ and npm
+</div>
+
+---
+
+## What is OpenClaw Miami?
+
+We're **50+ builders** in Miami exploring the future of personal AI. [OpenClaw](https://github.com/openclaw/openclaw) is the open-source AI agent with **145K+ GitHub stars** — and we're bringing it to life locally.
+
+- **Monthly meetups** — Hands-on sessions, demos, and networking
+- **Setup help** — Get OpenClaw running on your machine
+- **Community** — Connect with Miami's AI builders
+
+## Quick Start
 
 ```bash
-# Clone the repo
-git clone https://github.com/anthropics/openclawmiami.git
+git clone https://github.com/Purple-Horizons/openclawmiami.git
 cd openclawmiami
-
-# Install dependencies
 npm install
-
-# Start development server (port 8080)
 npm run dev
 ```
+
+Open [http://localhost:8080](http://localhost:8080) and you're in.
 
 ## Commands
 
 | Command | Description |
 |---------|-------------|
-| `npm run dev` | Start dev server with HMR on port 8080 |
-| `npm run build` | Production build to `dist/` |
-| `npm run preview` | Preview production build locally |
-| `npm run lint` | Run ESLint |
-| `npm run test` | Run tests (Vitest) |
-| `npm run test:watch` | Run tests in watch mode |
+| `npm run dev` | Dev server with HMR |
+| `npm run build` | Production build |
+| `npm run preview` | Preview production build |
+| `npm run lint` | ESLint |
+| `npm run test` | Vitest |
 
 ## Tech Stack
 
-- **Build:** [Vite](https://vitejs.dev/)
-- **Framework:** [React 18](https://react.dev/)
-- **Language:** [TypeScript](https://www.typescriptlang.org/)
-- **Styling:** [Tailwind CSS](https://tailwindcss.com/)
-- **Components:** [shadcn/ui](https://ui.shadcn.com/)
-- **Animations:** [Framer Motion](https://www.framer.com/motion/)
-
-## Project Structure
-
-```
-src/
-├── components/          # Page sections & UI components
-│   ├── ui/              # shadcn/ui primitives
-│   ├── HeroSection.tsx
-│   ├── EventsSection.tsx
-│   └── ...
-├── pages/               # Route pages
-├── hooks/               # Custom React hooks
-├── lib/                 # Utilities
-└── App.tsx              # Root component with routing
-```
+**React 18** · **TypeScript** · **Vite** · **Tailwind CSS** · **shadcn/ui** · **Framer Motion**
 
 ## Contributing
 
-We welcome contributions from the community! Here's how you can help:
+We love contributions! Here's how:
 
-### Ways to Contribute
+1. **Fork** the repo
+2. **Create** a branch (`git checkout -b feature/cool-thing`)
+3. **Make** your changes
+4. **Test** (`npm run lint && npm run test`)
+5. **Push** and open a **PR**
 
-- **Report bugs** — Open an issue describing the problem
-- **Suggest features** — Share ideas for improving the site
-- **Submit PRs** — Fix bugs, add features, improve docs
-- **Spread the word** — Tell Miami builders about OpenClaw
-
-### Pull Request Process
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Make your changes
-4. Run linting and tests (`npm run lint && npm run test`)
-5. Commit your changes (`git commit -m 'Add amazing feature'`)
-6. Push to your branch (`git push origin feature/amazing-feature`)
-7. Open a Pull Request
-
-### Code Style
-
-- TypeScript strict mode
-- Tailwind CSS for styling (use existing design tokens)
-- Components in `src/components/`, pages in `src/pages/`
-- Follow existing patterns in the codebase
-
-## Community
-
-- **Discord** — [Join the conversation](https://discord.com/channels/1456350064065904867/1464825842264703221)
-- **Meetups** — Monthly in Miami, check the site for upcoming events
-- **OpenClaw** — [Main project repo](https://github.com/anthropics/claude-code)
+See something broken? [Open an issue](https://github.com/Purple-Horizons/openclawmiami/issues).
 
 ## Contact
 
-**Organizers:**
-
-| Name | GitHub | Socials |
-|------|--------|---------|
-| Gianni Dalerta | [@gianni-dalerta](https://github.com/gianni-dalerta) | [@giannidalerta](https://twitter.com/giannidalerta) everywhere |
-| Ralph Quintero | — | — |
-
-**Hosted by:** [Purple Horizons](https://purplehorizons.io)
-
-For questions, sponsorship inquiries, or partnership opportunities, reach out through any of the channels above.
+| Who | Links |
+|-----|-------|
+| **Gianni Dalerta** | [@gianni-dalerta](https://github.com/gianni-dalerta) · [@giannidalerta](https://twitter.com/giannidalerta) |
+| **Ralph Quintero** | — |
+| **Purple Horizons** | [purplehorizons.io](https://purplehorizons.io) |
 
 ## License
 
-MIT
+MIT — do whatever you want.
 
 ---
 
-Built with caffeine and curiosity in Miami.
+<div align="center">
+
+**Built with 🦞 in Miami**
+
+[Join the community →](https://discord.com/channels/1456350064065904867/1464825842264703221)
+
+</div>

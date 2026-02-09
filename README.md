@@ -79,7 +79,7 @@ MIT — do whatever you want.
 
 <div align="center">
 
-**Built with 🦞 in Miami**
+**Built with cafesitos and croquetas in Miami 🦞**
 
 [Join the community →](https://discord.com/channels/1456350064065904867/1464825842264703221)
 

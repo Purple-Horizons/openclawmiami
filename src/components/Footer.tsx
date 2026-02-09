@@ -3,6 +3,7 @@ const links = [
   { label: "OpenClaw", href: "https://openclaw.ai" },
   { label: "Discord", href: "https://discord.com/channels/1456350064065904867/1464825842264703221" },
   { label: "GitHub", href: "https://github.com/openclaw/openclaw" },
+  { label: "Contribute", href: "https://github.com/Purple-Horizons/openclawmiami" },
   { label: "Purple Horizons", href: "https://purplehorizons.io" },
 ];
 

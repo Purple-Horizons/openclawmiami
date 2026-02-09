@@ -14,7 +14,7 @@ const steps = [
     step: "02",
     title: "Join",
     description: "Connect with the community on Discord.",
-    link: { text: "Join Discord →", href: "https://discord.gg/openclaw" },
+    link: { text: "Join Discord →", href: "https://discord.com/channels/1456350064065904867/1464825842264703221" },
   },
   {
     icon: Calendar,

@@ -4,7 +4,7 @@ import WhatIsSection from "@/components/WhatIsSection";
 import EventsSection from "@/components/EventsSection";
 import WhyMiamiSection from "@/components/WhyMiamiSection";
 import GetStartedSection from "@/components/GetStartedSection";
-import AboutSection from "@/components/AboutSection";
+import HostsSponsorsSection from "@/components/HostsSponsorsSection";
 import Footer from "@/components/Footer";
 
 const Index = () => {
@@ -17,7 +17,7 @@ const Index = () => {
         <EventsSection />
         <WhyMiamiSection />
         <GetStartedSection />
-        <AboutSection />
+        <HostsSponsorsSection />
       </main>
       <Footer />
     </div>

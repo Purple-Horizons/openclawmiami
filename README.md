@@ -68,7 +68,7 @@ See something broken? [Open an issue](https://github.com/Purple-Horizons/opencla
 | Who | Links |
 |-----|-------|
 | **Gianni Dalerta** | [@gianni-dalerta](https://github.com/gianni-dalerta) · [@giannidalerta](https://twitter.com/giannidalerta) |
-| **Ralph Quintero** | — |
+| **Ralph Quintero** | [@ralphquintero](https://twitter.com/ralphquintero) everywhere |
 | **Purple Horizons** | [purplehorizons.io](https://purplehorizons.io) |
 
 ## License

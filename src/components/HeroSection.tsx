@@ -37,7 +37,7 @@ const HeroSection = () => {
             <a href="#events">See Upcoming Events</a>
           </Button>
           <Button variant="hero-outline" size="lg" asChild>
-            <a href="https://discord.gg/openclaw" target="_blank" rel="noopener noreferrer">
+            <a href="https://discord.com/channels/1456350064065904867/1464825842264703221" target="_blank" rel="noopener noreferrer">
               Join the Community
             </a>
           </Button>

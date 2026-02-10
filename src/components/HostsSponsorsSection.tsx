@@ -18,7 +18,7 @@ const hosts = [
   },
   {
     name: "The Lab Miami",
-    role: "Partner",
+    role: "Host & Organizer",
     description: "The LAB Miami is where Miami's most relentless founders, technical talent, and startup operators come to build. In the heart of Wynwood, our campus is designed for those pushing the edge of what's possible with the infrastructure, community, and energy to accelerate real progress.",
     link: "https://thelabmiami.com",
   },

@@ -24,8 +24,12 @@ const EventsSection = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="flex justify-center"
+          className="flex flex-col items-center"
         >
+          <span className="inline-flex items-center gap-2 px-3 py-1 mb-4 text-sm font-medium bg-coral/10 text-coral border border-coral/20 rounded-full">
+            <span className="w-2 h-2 bg-coral rounded-full animate-pulse" />
+            At Capacity
+          </span>
           <iframe
             src="https://luma.com/embed/event/evt-hovN3V9S5kmmPHp/simple"
             width="600"
@@ -39,8 +43,44 @@ const EventsSection = () => {
         </motion.div>
 
         <p className="text-center text-sm text-muted-foreground mt-6">
-          RSVP to join us at our next meetup.
+          Waitlist open — join to get notified if spots open up.
         </p>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          className="mt-10 text-center"
+        >
+          <p className="text-sm text-muted-foreground mb-3">
+            Get notified for future events
+          </p>
+          <div className="flex justify-center gap-4">
+            <a
+              href="https://lu.ma/openclaw-miami"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium bg-card border border-border rounded-lg hover:bg-accent transition-colors"
+            >
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M21 8v13H3V8l9-5 9 5zm-9-2.5L5.5 9h13L12 5.5zM5 11v8h14v-8H5z" />
+              </svg>
+              Subscribe on Luma
+            </a>
+            <a
+              href="https://x.com/openclawmiami"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium bg-card border border-border rounded-lg hover:bg-accent transition-colors"
+            >
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+              </svg>
+              @openclawmiami
+            </a>
+          </div>
+        </motion.div>
       </div>
     </section>
   );

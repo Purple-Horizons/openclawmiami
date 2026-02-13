@@ -26,10 +26,9 @@ const EventsSection = () => {
           transition={{ duration: 0.5 }}
           className="flex flex-col items-center"
         >
-          <span className="inline-flex items-center gap-2 px-3 py-1 mb-4 text-sm font-medium bg-coral/10 text-coral border border-coral/20 rounded-full">
-            <span className="w-2 h-2 bg-coral rounded-full animate-pulse" />
-            At Capacity
-          </span>
+          <p className="text-sm text-muted-foreground mb-4">
+            First meetup at capacity — waitlist open
+          </p>
           <iframe
             src="https://luma.com/embed/event/evt-hovN3V9S5kmmPHp/simple"
             width="600"
@@ -58,10 +57,10 @@ const EventsSection = () => {
           </p>
           <div className="flex justify-center gap-4">
             <a
-              href="https://lu.ma/openclaw-miami"
+              href="https://luma.com/Openclaw"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium bg-card border border-border rounded-lg hover:bg-accent transition-colors"
+              className="inline-flex items-center gap-2 h-10 px-4 py-2 text-sm font-semibold rounded-md bg-gradient-sunset text-primary-foreground shadow-coral hover:opacity-90 transition-all duration-300"
             >
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M21 8v13H3V8l9-5 9 5zm-9-2.5L5.5 9h13L12 5.5zM5 11v8h14v-8H5z" />
@@ -72,7 +71,7 @@ const EventsSection = () => {
               href="https://x.com/openclawmiami"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium bg-card border border-border rounded-lg hover:bg-accent transition-colors"
+              className="inline-flex items-center gap-2 h-10 px-4 py-2 text-sm font-medium rounded-md border-2 border-primary/50 text-foreground hover:border-primary hover:bg-primary/10 transition-all duration-300"
             >
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />

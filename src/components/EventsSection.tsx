@@ -24,23 +24,22 @@ const EventsSection = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="bg-card border border-border rounded-xl overflow-hidden"
+          className="flex justify-center"
         >
           <iframe
-            src="https://luma.com/embed/calendar/cal-YUQbpD9Pohuzxfw/events"
-            width="100%"
+            src="https://luma.com/embed/event/evt-hovN3V9S5kmmPHp/simple"
+            width="600"
             height="450"
             frameBorder="0"
-            allowFullScreen
+            style={{ border: "1px solid #bfcbda88", borderRadius: "4px" }}
+            allow="fullscreen; payment"
             aria-hidden="false"
             tabIndex={0}
-            className="w-full"
-            style={{ border: "none" }}
           />
         </motion.div>
 
         <p className="text-center text-sm text-muted-foreground mt-6">
-          Want to host an event? Submit yours to the calendar.
+          RSVP to join us at our next meetup.
         </p>
       </div>
     </section>

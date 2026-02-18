@@ -22,3 +22,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Check-in data
+.checkin-data/
+data/attendees-hashes.json
+.vercel
+.env*.local

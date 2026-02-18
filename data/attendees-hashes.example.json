@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "generatedAt": "2026-02-18T00:00:00.000Z",
+  "totalAttendees": 1,
+  "hashAlgorithm": "sha256",
+  "nameEncoding": "encrypted-json-aes-256-gcm",
+  "attendees": {
+    "<sha256(email-with-pepper)>": {
+      "n": "{\"v\":1,\"alg\":\"aes-256-gcm\",\"iv\":\"...\",\"tag\":\"...\",\"data\":\"...\"}"
+    }
+  }
+}

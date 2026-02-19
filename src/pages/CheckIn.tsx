@@ -78,20 +78,6 @@ const CheckIn = () => {
   const [success, setSuccess] = useState<SuccessState | null>(null);
   const [imageState, setImageState] = useState<ImageState | null>(null);
 
-  function resetForNextCheckIn() {
-    setSuccess(null);
-    setEmail("");
-    setLookupState(null);
-    setRegistrationNeeded(false);
-    setFirstName("");
-    setLastName("");
-    setReferredBy("");
-    setHasDeployedAgent(null);
-    setObstacle("");
-    setError(null);
-    setImageState(null);
-  }
-
   useEffect(() => {
     if (!imageState?.jobId || imageState.status !== "queued") {
       return;
@@ -369,9 +355,6 @@ const CheckIn = () => {
                   </Button>
                 </div>
               )}
-              <Button variant="hero" onClick={resetForNextCheckIn}>
-                Check In Another Person
-              </Button>
             </CardContent>
           </Card>
         </main>

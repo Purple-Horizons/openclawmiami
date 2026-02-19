@@ -58,6 +58,8 @@ export default async function handler(request, response) {
         checkedIn: true,
         alreadyCheckedIn: true,
         checkedInAt: existing?.checkedInAt ?? null,
+        generatedImageUrl: String(existing?.generatedImageUrl ?? ""),
+        generatedShareUrl: String(existing?.generatedShareUrl ?? ""),
       }, response);
     }
 

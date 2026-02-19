@@ -2,6 +2,8 @@ export type LookupResponse = {
   found: boolean;
   name?: string;
   alreadyCheckedIn?: boolean;
+  generatedImageUrl?: string;
+  generatedShareUrl?: string;
   error?: string;
 };
 
@@ -10,6 +12,8 @@ export type RegisterResponse = {
   alreadyRegistered: boolean;
   name: string;
   alreadyCheckedIn: boolean;
+  generatedImageUrl?: string;
+  generatedShareUrl?: string;
   error?: string;
 };
 
@@ -17,6 +21,8 @@ export type SubmitResponse = {
   checkedIn: boolean;
   alreadyCheckedIn: boolean;
   checkedInAt?: string | null;
+  generatedImageUrl?: string;
+  generatedShareUrl?: string;
   error?: string;
 };
 
@@ -41,6 +47,8 @@ export type CheckinReportRow = {
   source: string;
   referredBy: string;
   checkedInAt: string;
+  generatedImageUrl?: string;
+  generatedShareUrl?: string;
 };
 
 export type CheckinReportResponse = {
@@ -172,8 +180,8 @@ export async function fetchCheckinReport(token?: string): Promise<CheckinReportR
   return data;
 }
 
-export async function startCheckinImageJob(name: string): Promise<CheckinImageJob> {
-  return postJson<CheckinImageJob>("/api/checkin/image-start", { name });
+export async function startCheckinImageJob(name: string, email: string): Promise<CheckinImageJob> {
+  return postJson<CheckinImageJob>("/api/checkin/image-start", { name, email });
 }
 
 export async function fetchCheckinImageJob(jobId: string): Promise<CheckinImageJob> {

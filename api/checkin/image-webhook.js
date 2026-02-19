@@ -1,6 +1,7 @@
 import { extractImageUrl } from "../_lib/fal.js";
 import { getQueryParam, json, readJson } from "../_lib/http.js";
-import { getImageJob, saveImageJob } from "../_lib/storage.js";
+import { decryptJson, encryptJson } from "../_lib/security.js";
+import { getCheckinRecord, getImageJob, saveCheckinRecord, saveImageJob } from "../_lib/storage.js";
 
 function parseJob(input) {
   if (!input) {
@@ -16,6 +17,41 @@ function parseJob(input) {
   }
 
   return input;
+}
+
+function proxyUrlFor(jobId) {
+  return `/api/checkin/image-file?jobId=${encodeURIComponent(jobId)}`;
+}
+
+function shareUrlFor(jobId) {
+  return `/api/checkin/share?jobId=${encodeURIComponent(jobId)}`;
+}
+
+async function attachImageToCheckinRecord(current, jobId) {
+  const emailHash = String(current?.attendeeEmailHash ?? "");
+  if (!emailHash) {
+    return;
+  }
+
+  const existingEncrypted = await getCheckinRecord(emailHash);
+  if (!existingEncrypted) {
+    return;
+  }
+
+  const existing = decryptJson(existingEncrypted);
+  if (!existing || typeof existing !== "object") {
+    return;
+  }
+
+  const next = {
+    ...existing,
+    generatedImageJobId: jobId,
+    generatedImageUrl: proxyUrlFor(jobId),
+    generatedShareUrl: shareUrlFor(jobId),
+    generatedImageUpdatedAt: new Date().toISOString(),
+  };
+
+  await saveCheckinRecord(emailHash, encryptJson(next));
 }
 
 export default async function handler(request, response) {
@@ -50,6 +86,7 @@ export default async function handler(request, response) {
       imageUrl,
       completedAt: new Date().toISOString(),
     });
+    await attachImageToCheckinRecord(current, jobId);
     return json(200, { ok: true }, response);
   }
 

@@ -19,6 +19,8 @@ function buildCsv(rows: CheckinReportRow[]) {
     "ReferredBy",
     "Source",
     "CheckedInAt",
+    "GeneratedImageUrl",
+    "GeneratedShareUrl",
   ];
 
   const lines = rows.map((row) =>
@@ -30,6 +32,8 @@ function buildCsv(rows: CheckinReportRow[]) {
       csvCell(row.referredBy),
       csvCell(row.source),
       csvCell(row.checkedInAt),
+      csvCell(row.generatedImageUrl ?? ""),
+      csvCell(row.generatedShareUrl ?? ""),
     ].join(","),
   );
 
@@ -126,6 +130,7 @@ const CheckInReport = () => {
                     <th className="text-left px-3 py-2">Referred by</th>
                     <th className="text-left px-3 py-2">Source</th>
                     <th className="text-left px-3 py-2">Checked in at</th>
+                    <th className="text-left px-3 py-2">Generated image</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -138,11 +143,25 @@ const CheckInReport = () => {
                       <td className="px-3 py-2">{row.referredBy || "-"}</td>
                       <td className="px-3 py-2">{row.source}</td>
                       <td className="px-3 py-2">{row.checkedInAt}</td>
+                      <td className="px-3 py-2 break-all">
+                        {row.generatedImageUrl ? (
+                          <a
+                            className="text-primary underline-offset-2 hover:underline"
+                            href={row.generatedImageUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            {row.generatedImageUrl}
+                          </a>
+                        ) : (
+                          "-"
+                        )}
+                      </td>
                     </tr>
                   ))}
                   {!rows.length && (
                     <tr>
-                      <td className="px-3 py-4 text-muted-foreground" colSpan={7}>
+                      <td className="px-3 py-4 text-muted-foreground" colSpan={8}>
                         No check-ins yet.
                       </td>
                     </tr>

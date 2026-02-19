@@ -1,4 +1,5 @@
 import { resolveAttendeeByEmail } from "../_lib/attendee-resolution.js";
+import { decryptJson } from "../_lib/security.js";
 import { json, normalizeEmail, readJson } from "../_lib/http.js";
 import { enforceRateLimit } from "../_lib/rate-limit.js";
 import { getCheckinRecord } from "../_lib/storage.js";
@@ -33,12 +34,15 @@ export default async function handler(request, response) {
       }, response);
     }
 
-    const existing = await getCheckinRecord(attendee.emailHash);
+    const existingEncrypted = await getCheckinRecord(attendee.emailHash);
+    const existing = existingEncrypted ? decryptJson(existingEncrypted) : null;
 
     return json(200, {
       found: true,
       name: attendee.name,
-      alreadyCheckedIn: Boolean(existing),
+      alreadyCheckedIn: Boolean(existingEncrypted),
+      generatedImageUrl: String(existing?.generatedImageUrl ?? ""),
+      generatedShareUrl: String(existing?.generatedShareUrl ?? ""),
     }, response);
   } catch (error) {
     return json(500, {

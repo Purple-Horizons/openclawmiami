@@ -64,6 +64,8 @@ export default async function handler(request, response) {
         source: String(entry.source ?? "pre_registered"),
         referredBy: String(entry.referredBy ?? ""),
         checkedInAt: String(entry.checkedInAt ?? ""),
+        generatedImageUrl: String(entry.generatedImageUrl ?? ""),
+        generatedShareUrl: String(entry.generatedShareUrl ?? ""),
       }))
       .sort((a, b) => b.checkedInAt.localeCompare(a.checkedInAt));
 

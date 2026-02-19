@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
+import { resolveAttendeeByEmail } from "../_lib/attendee-resolution.js";
 import { falEnabled, buildFalPrompt, submitFalImageJob } from "../_lib/fal.js";
-import { json, readJson } from "../_lib/http.js";
+import { json, normalizeEmail, readJson } from "../_lib/http.js";
 import { enforceRateLimit } from "../_lib/rate-limit.js";
 import { saveImageJob } from "../_lib/storage.js";
 
@@ -34,8 +35,15 @@ export default async function handler(request, response) {
 
   const body = await readJson(request);
   const attendeeName = String(body?.name ?? "Builder").trim().slice(0, 80);
+  const email = normalizeEmail(body?.email);
 
   try {
+    let attendeeEmailHash = "";
+    if (email && email.includes("@")) {
+      const attendee = await resolveAttendeeByEmail(email);
+      attendeeEmailHash = attendee?.emailHash ?? "";
+    }
+
     const jobId = randomUUID();
     const token = process.env.CHECKIN_FAL_WEBHOOK_TOKEN ?? "";
     const base = publicBaseUrl(request);
@@ -59,6 +67,7 @@ export default async function handler(request, response) {
       error: "",
       createdAt: new Date().toISOString(),
       attendeeName,
+      attendeeEmailHash,
     });
 
     return json(200, {

@@ -1,4 +1,5 @@
 import { registerWalkInAttendee, resolveAttendeeByEmail } from "../_lib/attendee-resolution.js";
+import { decryptJson } from "../_lib/security.js";
 import { json, normalizeEmail, readJson } from "../_lib/http.js";
 import { enforceRateLimit } from "../_lib/rate-limit.js";
 import { getCheckinRecord } from "../_lib/storage.js";
@@ -38,14 +39,17 @@ export default async function handler(request, response) {
   try {
     const existing = await resolveAttendeeByEmail(email);
     if (existing) {
-      const checkin = await getCheckinRecord(existing.emailHash);
+      const checkinEncrypted = await getCheckinRecord(existing.emailHash);
+      const checkin = checkinEncrypted ? decryptJson(checkinEncrypted) : null;
       return json(
         200,
         {
           registered: true,
           alreadyRegistered: true,
           name: existing.name,
-          alreadyCheckedIn: Boolean(checkin),
+          alreadyCheckedIn: Boolean(checkinEncrypted),
+          generatedImageUrl: String(checkin?.generatedImageUrl ?? ""),
+          generatedShareUrl: String(checkin?.generatedShareUrl ?? ""),
         },
         response,
       );

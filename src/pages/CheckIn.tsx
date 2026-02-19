@@ -12,6 +12,9 @@ type LookupState = {
   found: boolean;
   name: string;
   alreadyCheckedIn: boolean;
+  alreadyRegistered?: boolean;
+  generatedImageUrl?: string;
+  generatedShareUrl?: string;
 };
 
 type SuccessState = {
@@ -137,6 +140,9 @@ const CheckIn = () => {
         found: true,
         name: result.name ?? "Attendee",
         alreadyCheckedIn: Boolean(result.alreadyCheckedIn),
+        alreadyRegistered: false,
+        generatedImageUrl: result.generatedImageUrl ?? "",
+        generatedShareUrl: result.generatedShareUrl ?? "",
       };
 
       setLookupState(nextLookupState);
@@ -178,6 +184,9 @@ const CheckIn = () => {
         found: true,
         name: result.name,
         alreadyCheckedIn: Boolean(result.alreadyCheckedIn),
+        alreadyRegistered: Boolean(result.alreadyRegistered),
+        generatedImageUrl: result.generatedImageUrl ?? "",
+        generatedShareUrl: result.generatedShareUrl ?? "",
       });
       setRegistrationNeeded(false);
     } catch (registerError) {
@@ -218,7 +227,7 @@ const CheckIn = () => {
         checkedInAt: result.checkedInAt ?? new Date().toISOString(),
       });
       try {
-        const job = await startCheckinImageJob(toTitleCase(lookupState.name || "Builder"));
+        const job = await startCheckinImageJob(toTitleCase(lookupState.name || "Builder"), email);
         setImageState({
           jobId: job.jobId,
           status: "queued",
@@ -336,15 +345,6 @@ const CheckIn = () => {
                   <Button variant="hero" asChild>
                     <a href={imageState.imageUrl} download={downloadName}>
                       Download Image
-                    </a>
-                  </Button>
-                  <Button variant="outline" asChild>
-                    <a
-                      href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(sharePageUrl || shareImageUrl)}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      Share on LinkedIn
                     </a>
                   </Button>
                   <Button variant="outline" asChild>
@@ -486,7 +486,25 @@ const CheckIn = () => {
               ) : !lookupState?.found ? (
                 <p className="text-sm text-muted-foreground">Find your attendee record first.</p>
               ) : lookupState.alreadyCheckedIn ? (
-                <p className="text-sm text-accent">You are already checked in. Thanks for being here.</p>
+                <div className="space-y-3">
+                  <p className="text-sm text-accent">
+                    {lookupState.alreadyRegistered
+                      ? "Already registered and already checked in."
+                      : "You are already checked in. Thanks for being here."}
+                  </p>
+                  {lookupState.generatedImageUrl ? (
+                    <div className="rounded-xl border border-primary/30 bg-background/40 p-3">
+                      <p className="text-xs text-muted-foreground mb-2">
+                        Existing card for <span className="font-medium text-foreground">{toTitleCase(lookupState.name)}</span>
+                      </p>
+                      <img
+                        src={lookupState.generatedImageUrl}
+                        alt={`${lookupState.name} check-in card`}
+                        className="w-full max-w-xs aspect-square rounded-lg object-cover border border-primary/25"
+                      />
+                    </div>
+                  ) : null}
+                </div>
               ) : (
                 <form onSubmit={handleCheckIn} className="space-y-5">
                   <div className="space-y-3">

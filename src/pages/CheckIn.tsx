@@ -242,6 +242,9 @@ const CheckIn = () => {
 
   if (success) {
     const shareImageUrl = toAbsoluteUrl(imageState?.imageUrl ?? "");
+    const sharePageUrl = imageState?.jobId
+      ? toAbsoluteUrl(`/api/checkin/share?jobId=${encodeURIComponent(imageState.jobId)}`)
+      : "";
     const downloadName = `openclawmiami-${toSlug(success.name) || "attendee"}.png`;
 
     return (
@@ -337,7 +340,7 @@ const CheckIn = () => {
                   </Button>
                   <Button variant="outline" asChild>
                     <a
-                      href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareImageUrl)}`}
+                      href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(sharePageUrl || shareImageUrl)}`}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
@@ -346,7 +349,7 @@ const CheckIn = () => {
                   </Button>
                   <Button variant="outline" asChild>
                     <a
-                      href={`https://x.com/intent/tweet?text=${encodeURIComponent(`Checked in at OpenClaw Miami with ${success.name} 🦞`)}&url=${encodeURIComponent(shareImageUrl)}`}
+                      href={`https://x.com/intent/tweet?text=${encodeURIComponent(`Checked in at OpenClaw Miami with ${success.name} 🦞`)}&url=${encodeURIComponent(sharePageUrl || shareImageUrl)}`}
                       target="_blank"
                       rel="noopener noreferrer"
                     >

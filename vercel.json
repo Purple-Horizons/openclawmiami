@@ -1,4 +1,9 @@
 {
+  "functions": {
+    "api/checkin/*.js": {
+      "includeFiles": "data/attendees-hashes.json"
+    }
+  },
   "routes": [
     {
       "handle": "filesystem"

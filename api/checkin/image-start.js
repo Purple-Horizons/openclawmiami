@@ -42,8 +42,10 @@ export default async function handler(request, response) {
     const tokenQuery = token ? `&token=${encodeURIComponent(token)}` : "";
     const webhookUrl = `${base}/api/checkin/image-webhook?jobId=${encodeURIComponent(jobId)}${tokenQuery}`;
 
+    const falPrompt = await buildFalPrompt(attendeeName);
+
     const falJob = await submitFalImageJob({
-      prompt: buildFalPrompt(attendeeName),
+      prompt: falPrompt,
       webhookUrl,
     });
 

@@ -15,6 +15,7 @@ type LookupState = {
   alreadyRegistered?: boolean;
   generatedImageUrl?: string;
   generatedShareUrl?: string;
+  origin?: "lookup" | "register";
 };
 
 type SuccessState = {
@@ -143,6 +144,7 @@ const CheckIn = () => {
         alreadyRegistered: false,
         generatedImageUrl: result.generatedImageUrl ?? "",
         generatedShareUrl: result.generatedShareUrl ?? "",
+        origin: "lookup" as const,
       };
 
       setLookupState(nextLookupState);
@@ -187,6 +189,7 @@ const CheckIn = () => {
         alreadyRegistered: Boolean(result.alreadyRegistered),
         generatedImageUrl: result.generatedImageUrl ?? "",
         generatedShareUrl: result.generatedShareUrl ?? "",
+        origin: "register",
       });
       setRegistrationNeeded(false);
     } catch (registerError) {
@@ -408,9 +411,13 @@ const CheckIn = () => {
 
               {lookupState?.found && (
                 <div className="mt-5 rounded-md border border-accent/30 bg-accent/10 p-3 text-sm">
-                  {lookupState.name && lookupState.name !== "Attendee"
-                    ? `Attendee found: ${lookupState.name}`
-                    : "Attendee found. You are on the list."}
+                  {lookupState.origin === "register" && lookupState.alreadyRegistered
+                    ? `Already registered: ${lookupState.name}`
+                    : lookupState.origin === "register"
+                      ? `Walk-in registered: ${lookupState.name}`
+                      : lookupState.name && lookupState.name !== "Attendee"
+                        ? `Attendee found: ${lookupState.name}`
+                        : "Attendee found. You are on the list."}
                 </div>
               )}
 

@@ -19,6 +19,17 @@ function parseJob(input) {
   return input;
 }
 
+function withProxyUrl(job) {
+  if (!job || job.status !== "completed") {
+    return job;
+  }
+
+  return {
+    ...job,
+    imageProxyUrl: `/api/checkin/image-file?jobId=${encodeURIComponent(job.jobId)}`,
+  };
+}
+
 export default async function handler(request, response) {
   if (request.method !== "GET") {
     return json(405, { error: "Method not allowed" }, response);
@@ -42,9 +53,10 @@ export default async function handler(request, response) {
   if (!current) {
     return json(404, { error: "Image job not found" }, response);
   }
+  current.jobId = current.jobId || jobId;
 
   if (current.status === "completed" || current.status === "failed") {
-    return json(200, current, response);
+    return json(200, withProxyUrl(current), response);
   }
 
   if (!current.responseUrl) {
@@ -63,11 +75,12 @@ export default async function handler(request, response) {
 
   const updated = {
     ...current,
+    jobId,
     status: "completed",
     imageUrl,
     completedAt: new Date().toISOString(),
   };
 
   await saveImageJob(jobId, updated);
-  return json(200, updated, response);
+  return json(200, withProxyUrl(updated), response);
 }

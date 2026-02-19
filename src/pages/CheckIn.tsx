@@ -37,6 +37,28 @@ function toTitleCase(value: string) {
     .join(" ");
 }
 
+function toSlug(value: string) {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 64);
+}
+
+function toAbsoluteUrl(value: string) {
+  if (!value) {
+    return "";
+  }
+  if (value.startsWith("http://") || value.startsWith("https://")) {
+    return value;
+  }
+  if (typeof window === "undefined") {
+    return value;
+  }
+  return `${window.location.origin}${value}`;
+}
+
 const CheckIn = () => {
   const [email, setEmail] = useState("");
   const [lookupState, setLookupState] = useState<LookupState | null>(null);
@@ -82,7 +104,7 @@ const CheckIn = () => {
           setImageState({
             jobId: imageState.jobId,
             status: "completed",
-            imageUrl: latest.imageUrl ?? "",
+            imageUrl: latest.imageProxyUrl ?? latest.imageUrl ?? "",
             error: "",
           });
         } else if (latest.status === "failed") {
@@ -120,7 +142,7 @@ const CheckIn = () => {
       if (!result.found) {
         setRegistrationNeeded(true);
         setError(
-          "No RSVP found. Bold move. Very main character. Drop your info below and we’ll pretend this was always the plan.",
+          "No Lu.ma RSVP found yet. Side quest unlocked. Enter your details below so we can patch you into the matrix. 🤖",
         );
         return;
       }
@@ -233,6 +255,9 @@ const CheckIn = () => {
   }
 
   if (success) {
+    const shareImageUrl = toAbsoluteUrl(imageState?.imageUrl ?? "");
+    const downloadName = `openclawmiami-${toSlug(success.name) || "attendee"}.png`;
+
     return (
       <div className="min-h-screen bg-background text-foreground relative overflow-hidden">
         <div className="absolute inset-0 bg-glow" />
@@ -278,13 +303,20 @@ const CheckIn = () => {
               <div className="w-full max-w-sm">
                 {imageState?.status === "completed" && imageState.imageUrl ? (
                   <motion.div
-                    className="relative mx-auto w-full aspect-square rounded-2xl overflow-hidden border border-primary/30 shadow-[0_25px_90px_rgba(8,145,178,0.28)]"
+                    className="relative mx-auto w-full aspect-square rounded-2xl overflow-hidden border border-primary/50 shadow-[0_45px_140px_rgba(34,197,94,0.36)]"
                     initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.35 }}
-                    whileHover={{ rotateX: 6, rotateY: -6, scale: 1.02 }}
-                    style={{ transformStyle: "preserve-3d" }}
+                    animate={{ opacity: 1, scale: 1, y: [0, -5, 0] }}
+                    transition={{ duration: 0.45, y: { duration: 4.5, repeat: Infinity, ease: "easeInOut" } }}
+                    whileHover={{ rotateX: 14, rotateY: -14, scale: 1.04 }}
+                    style={{ transformStyle: "preserve-3d", perspective: 1200 }}
                   >
+                    <motion.div
+                      className="pointer-events-none absolute inset-0 rounded-2xl"
+                      style={{ boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.35), inset 0 0 36px rgba(34,197,94,0.35)" }}
+                      initial={{ opacity: 0.55 }}
+                      animate={{ opacity: [0.45, 0.78, 0.45] }}
+                      transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
+                    />
                     <img src={imageState.imageUrl} alt={`${success.name} OpenClaw check-in`} className="h-full w-full object-cover" />
                     <motion.div
                       className="pointer-events-none absolute inset-0"
@@ -312,9 +344,14 @@ const CheckIn = () => {
 
               {imageState?.status === "completed" && imageState.imageUrl && (
                 <div className="flex flex-wrap justify-center gap-3">
+                  <Button variant="hero" asChild>
+                    <a href={imageState.imageUrl} download={downloadName}>
+                      Download Image
+                    </a>
+                  </Button>
                   <Button variant="outline" asChild>
                     <a
-                      href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(imageState.imageUrl)}`}
+                      href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareImageUrl)}`}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
@@ -323,7 +360,7 @@ const CheckIn = () => {
                   </Button>
                   <Button variant="outline" asChild>
                     <a
-                      href={`https://x.com/intent/tweet?text=${encodeURIComponent(`Checked in at OpenClaw Miami with ${success.name} 🦞`)}&url=${encodeURIComponent(imageState.imageUrl)}`}
+                      href={`https://x.com/intent/tweet?text=${encodeURIComponent(`Checked in at OpenClaw Miami with ${success.name} 🦞`)}&url=${encodeURIComponent(shareImageUrl)}`}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
@@ -391,7 +428,14 @@ const CheckIn = () => {
                 </div>
               )}
 
-              {error && <div className="mt-4 text-sm text-destructive">{error}</div>}
+              {error && registrationNeeded && !lookupState?.found ? (
+                <div className="mt-4 rounded-md border border-amber-400/40 bg-amber-400/10 px-3 py-2 text-sm text-amber-100">
+                  <span className="mr-1" aria-hidden="true">🦞</span>
+                  {error}
+                </div>
+              ) : error ? (
+                <div className="mt-4 text-sm text-destructive">{error}</div>
+              ) : null}
             </CardContent>
           </Card>
 

@@ -53,6 +53,7 @@ export type CheckinImageJob = {
   jobId: string;
   status: "queued" | "completed" | "failed";
   imageUrl?: string;
+  imageProxyUrl?: string;
   error?: string;
   attendeeName?: string;
 };

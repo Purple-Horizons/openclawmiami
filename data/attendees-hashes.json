@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "generatedAt": "2026-02-18T19:22:04.481Z",
+  "totalAttendees": 5,
+  "hashAlgorithm": "sha256",
+  "nameEncoding": "encrypted-json-aes-256-gcm",
+  "attendees": {
+    "17f3fdaf7ada18928e71a8c80ada90cfb11b6aad0144e4e910bce54100691aff": {
+      "n": "{\"v\":1,\"alg\":\"aes-256-gcm\",\"iv\":\"EFngNxrcKH1kAQGa\",\"tag\":\"ZTe195ud/adYFHWM+ZkZCw==\",\"data\":\"ogvqIXuz0opz6TmoXMpx\"}"
+    },
+    "cfc88f78f9271d940614f36851134c37193e103c2dce8d801cc18132199e81f7": {
+      "n": "{\"v\":1,\"alg\":\"aes-256-gcm\",\"iv\":\"bKqb5Zb1FDbJcvR1\",\"tag\":\"a5Unw3OoZizuWhK7a9r9tQ==\",\"data\":\"UQRXBOXOz+yZxkcJdbpkJgQK7ckxjhim5g==\"}"
+    },
+    "763782cc378c93c403764df3bb3a72921cd730e4e2692aee573a9eb2fb30b592": {
+      "n": "{\"v\":1,\"alg\":\"aes-256-gcm\",\"iv\":\"6Zdskj9cSegAv1Wy\",\"tag\":\"nPMZrEQIoFNBbHp4v33SQA==\",\"data\":\"/ydIs5MC789lCS3OI7TMuA==\"}"
+    },
+    "074a274475bedcf59898bdd4df62e19a6ee6f6e00367cfe213e8583e0a256067": {
+      "n": "{\"v\":1,\"alg\":\"aes-256-gcm\",\"iv\":\"2NqTriEw0ltMeQVF\",\"tag\":\"GbMRsL2XfIqd309fDm6pOg==\",\"data\":\"RydvHPqWTtU6jAC2uZ4ZoBWSktM+xF9H\"}"
+    },
+    "dcc831234976613a16056d6462e1ba47e3575860e14798d3cbbd4414c58ab172": {
+      "n": "{\"v\":1,\"alg\":\"aes-256-gcm\",\"iv\":\"rZEwN+4GPuAj0YBl\",\"tag\":\"Pf99lC64wb4P6eNHkx/Lsg==\",\"data\":\"/zgjDE762jT5wDlLKihZLIZ4Y2rOmg==\"}"
+    }
+  }
+}

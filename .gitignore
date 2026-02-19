@@ -25,6 +25,5 @@ dist-ssr
 
 # Check-in data
 .checkin-data/
-data/attendees-hashes.json
 .vercel
 .env*.local

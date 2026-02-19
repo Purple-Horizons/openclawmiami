@@ -41,14 +41,12 @@ export async function submitFalImageJob({ prompt, webhookUrl }) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      input: {
-        prompt,
-        image_urls: [imageUrl],
-        num_images: 1,
-        aspect_ratio: "1:1",
-        output_format: "png",
-        safety_tolerance: "4",
-      },
+      prompt,
+      image_urls: [imageUrl],
+      num_images: 1,
+      aspect_ratio: "1:1",
+      output_format: "png",
+      safety_tolerance: "4",
       webhook_url: webhookUrl,
     }),
   });

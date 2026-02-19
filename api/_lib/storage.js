@@ -17,6 +17,7 @@ function createEmptyStore() {
       deployedNo: 0,
     },
     obstacles: [],
+    imageJobs: {},
   };
 }
 
@@ -38,6 +39,7 @@ function normalizeStore(store) {
       deployedNo: Number(store?.stats?.deployedNo ?? 0),
     },
     obstacles: Array.isArray(store?.obstacles) ? store.obstacles : base.obstacles,
+    imageJobs: typeof store?.imageJobs === "object" && store.imageJobs ? store.imageJobs : base.imageJobs,
   };
 }
 
@@ -199,4 +201,24 @@ export async function getStatsSnapshot() {
     deployedNo: Number(store.stats.deployedNo ?? 0),
     obstacles: Array.isArray(store.obstacles) ? store.obstacles.slice(0, 200) : [],
   };
+}
+
+export async function getImageJob(jobId) {
+  if (hasKv()) {
+    return await kvCommand(["GET", `checkin:image-job:${jobId}`]);
+  }
+
+  const store = await loadFileStore();
+  return store.imageJobs[jobId] ?? null;
+}
+
+export async function saveImageJob(jobId, payload) {
+  if (hasKv()) {
+    await kvCommand(["SET", `checkin:image-job:${jobId}`, JSON.stringify(payload)]);
+    return;
+  }
+
+  const store = await loadFileStore();
+  store.imageJobs[jobId] = payload;
+  await saveFileStore(store);
 }

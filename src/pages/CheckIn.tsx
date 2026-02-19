@@ -1,16 +1,12 @@
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  fetchCheckinStats,
-  lookupAttendee,
-  registerWalkIn,
-  submitCheckin,
-  type StatsResponse,
-} from "@/lib/checkin-api";
+import { fetchCheckinImageJob, lookupAttendee, registerWalkIn, startCheckinImageJob, submitCheckin } from "@/lib/checkin-api";
+import { CheckCircle2 } from "lucide-react";
+import { motion } from "framer-motion";
 
 type LookupState = {
   found: boolean;
@@ -18,13 +14,28 @@ type LookupState = {
   alreadyCheckedIn: boolean;
 };
 
-const EMPTY_STATS: StatsResponse = {
-  deployedYes: 0,
-  deployedNo: 0,
-  total: 0,
-  obstacles: [],
-  topThemes: [],
+type SuccessState = {
+  name: string;
+  checkedInAt: string;
 };
+
+type ImageState = {
+  jobId: string;
+  status: "queued" | "completed" | "failed";
+  imageUrl: string;
+  error: string;
+};
+
+const CONFETTI_COLORS = ["#22c55e", "#14b8a6", "#f97316", "#ec4899", "#facc15", "#60a5fa"];
+
+function toTitleCase(value: string) {
+  return value
+    .trim()
+    .toLowerCase()
+    .split(/\s+/)
+    .map((part) => (part ? part[0].toUpperCase() + part.slice(1) : part))
+    .join(" ");
+}
 
 const CheckIn = () => {
   const [email, setEmail] = useState("");
@@ -42,36 +53,60 @@ const CheckIn = () => {
 
   const [hasDeployedAgent, setHasDeployedAgent] = useState<boolean | null>(null);
   const [obstacle, setObstacle] = useState("");
+  const [success, setSuccess] = useState<SuccessState | null>(null);
+  const [imageState, setImageState] = useState<ImageState | null>(null);
 
-  const [stats, setStats] = useState<StatsResponse>(EMPTY_STATS);
-  const [showStats, setShowStats] = useState(false);
-
-  const yesPercent = useMemo(() => {
-    if (!stats.total) {
-      return 0;
-    }
-    return Math.round((stats.deployedYes / stats.total) * 100);
-  }, [stats.deployedYes, stats.total]);
-
-  const noPercent = useMemo(() => {
-    if (!stats.total) {
-      return 0;
-    }
-    return Math.round((stats.deployedNo / stats.total) * 100);
-  }, [stats.deployedNo, stats.total]);
-
-  async function loadStats() {
-    const snapshot = await fetchCheckinStats();
-    setStats(snapshot);
-    setShowStats(true);
+  function resetForNextCheckIn() {
+    setSuccess(null);
+    setEmail("");
+    setLookupState(null);
+    setRegistrationNeeded(false);
+    setFirstName("");
+    setLastName("");
+    setReferredBy("");
+    setHasDeployedAgent(null);
+    setObstacle("");
+    setError(null);
+    setImageState(null);
   }
+
+  useEffect(() => {
+    if (!imageState?.jobId || imageState.status !== "queued") {
+      return;
+    }
+
+    const timer = window.setInterval(async () => {
+      try {
+        const latest = await fetchCheckinImageJob(imageState.jobId);
+        if (latest.status === "completed") {
+          setImageState({
+            jobId: imageState.jobId,
+            status: "completed",
+            imageUrl: latest.imageUrl ?? "",
+            error: "",
+          });
+        } else if (latest.status === "failed") {
+          setImageState({
+            jobId: imageState.jobId,
+            status: "failed",
+            imageUrl: "",
+            error: latest.error ?? "Image generation failed.",
+          });
+        }
+      } catch {
+        // Keep polling; transient failures are expected.
+      }
+    }, 2200);
+
+    return () => window.clearInterval(timer);
+  }, [imageState?.jobId, imageState?.status]);
 
   async function handleLookup(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
     setLookupState(null);
     setRegistrationNeeded(false);
-    setShowStats(false);
+    setSuccess(null);
 
     const trimmedEmail = email.trim();
     if (!trimmedEmail.includes("@")) {
@@ -100,9 +135,6 @@ const CheckIn = () => {
       setHasDeployedAgent(null);
       setObstacle("");
 
-      if (nextLookupState.alreadyCheckedIn) {
-        await loadStats();
-      }
     } catch (lookupError) {
       setError(lookupError instanceof Error ? lookupError.message : "Unable to find attendee.");
     } finally {
@@ -140,10 +172,6 @@ const CheckIn = () => {
         alreadyCheckedIn: Boolean(result.alreadyCheckedIn),
       });
       setRegistrationNeeded(false);
-
-      if (result.alreadyCheckedIn) {
-        await loadStats();
-      }
     } catch (registerError) {
       setError(registerError instanceof Error ? registerError.message : "Unable to register attendee.");
     } finally {
@@ -172,25 +200,146 @@ const CheckIn = () => {
     setIsSubmitLoading(true);
 
     try {
-      await submitCheckin({
+      const result = await submitCheckin({
         email,
         deployedAgent: hasDeployedAgent,
         obstacle,
       });
-      await loadStats();
-      setLookupState((previous) =>
-        previous
-          ? {
-              ...previous,
-              alreadyCheckedIn: true,
-            }
-          : previous,
-      );
+      setSuccess({
+        name: toTitleCase(lookupState.name || "Attendee"),
+        checkedInAt: result.checkedInAt ?? new Date().toISOString(),
+      });
+      try {
+        const job = await startCheckinImageJob(toTitleCase(lookupState.name || "Builder"));
+        setImageState({
+          jobId: job.jobId,
+          status: "queued",
+          imageUrl: "",
+          error: "",
+        });
+      } catch {
+        setImageState({
+          jobId: "",
+          status: "failed",
+          imageUrl: "",
+          error: "We checked you in, but the share image generator is taking a coffee break.",
+        });
+      }
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : "Unable to complete check-in.");
     } finally {
       setIsSubmitLoading(false);
     }
+  }
+
+  if (success) {
+    return (
+      <div className="min-h-screen bg-background text-foreground relative overflow-hidden">
+        <div className="absolute inset-0 bg-glow" />
+        <div className="absolute top-10 left-1/2 -translate-x-1/2 w-[640px] h-[640px] rounded-full bg-green-500/20 blur-[140px]" />
+
+        <div className="pointer-events-none absolute inset-0 overflow-hidden">
+          {Array.from({ length: 36 }).map((_, index) => (
+            <motion.div
+              key={index}
+              className="absolute h-2 w-2 rounded-sm"
+              style={{
+                left: `${(index * 17) % 100}%`,
+                backgroundColor: CONFETTI_COLORS[index % CONFETTI_COLORS.length],
+              }}
+              initial={{ y: -40, opacity: 0 }}
+              animate={{ y: [0, 460], opacity: [0, 1, 1, 0], rotate: [0, 180, 360] }}
+              transition={{
+                duration: 2.6 + (index % 7) * 0.2,
+                repeat: Infinity,
+                ease: "easeIn",
+                delay: (index % 9) * 0.12,
+              }}
+            />
+          ))}
+        </div>
+
+        <main className="relative z-10 min-h-screen flex items-center justify-center px-6 py-10">
+          <Card className="w-full max-w-2xl bg-card/85 backdrop-blur border-green-400/50 shadow-[0_0_60px_rgba(34,197,94,0.22)] text-center">
+            <CardHeader className="items-center">
+              <div className="rounded-full bg-green-500/20 p-4 border border-green-400/60">
+                <CheckCircle2 className="h-16 w-16 text-green-400" />
+              </div>
+              <CardTitle className="font-display text-4xl sm:text-5xl mt-4 text-green-300">Checked In</CardTitle>
+              <CardDescription className="text-base sm:text-lg text-foreground/90">
+                <span className="font-display text-2xl text-foreground">{success.name}</span>
+              </CardDescription>
+              <p className="text-sm text-muted-foreground mt-2">Show this screen to the team at the door.</p>
+            </CardHeader>
+            <CardContent className="flex flex-col items-center gap-4">
+              <p className="text-xs text-muted-foreground">
+                Verified at {new Date(success.checkedInAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}
+              </p>
+              <div className="w-full max-w-sm">
+                {imageState?.status === "completed" && imageState.imageUrl ? (
+                  <motion.div
+                    className="relative mx-auto w-full aspect-square rounded-2xl overflow-hidden border border-primary/30 shadow-[0_25px_90px_rgba(8,145,178,0.28)]"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.35 }}
+                    whileHover={{ rotateX: 6, rotateY: -6, scale: 1.02 }}
+                    style={{ transformStyle: "preserve-3d" }}
+                  >
+                    <img src={imageState.imageUrl} alt={`${success.name} OpenClaw check-in`} className="h-full w-full object-cover" />
+                    <motion.div
+                      className="pointer-events-none absolute inset-0"
+                      style={{
+                        background:
+                          "linear-gradient(120deg, rgba(255,255,255,0) 28%, rgba(255,255,255,0.34) 50%, rgba(255,255,255,0) 72%)",
+                      }}
+                      initial={{ x: "-120%" }}
+                      animate={{ x: "130%" }}
+                      transition={{ duration: 1.8, repeat: Infinity, repeatDelay: 1.2, ease: "easeInOut" }}
+                    />
+                  </motion.div>
+                ) : (
+                  <div className="mx-auto w-full aspect-square rounded-2xl border border-primary/25 bg-background/50 flex flex-col items-center justify-center gap-3 px-6">
+                    <div className="h-10 w-10 rounded-full border-2 border-primary/40 border-t-primary animate-spin" />
+                    <p className="text-sm text-muted-foreground text-center">
+                      Something special is being generated...
+                    </p>
+                    {imageState?.status === "failed" && (
+                      <p className="text-xs text-destructive text-center">{imageState.error || "Image generation failed."}</p>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {imageState?.status === "completed" && imageState.imageUrl && (
+                <div className="flex flex-wrap justify-center gap-3">
+                  <Button variant="outline" asChild>
+                    <a
+                      href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(imageState.imageUrl)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Share on LinkedIn
+                    </a>
+                  </Button>
+                  <Button variant="outline" asChild>
+                    <a
+                      href={`https://x.com/intent/tweet?text=${encodeURIComponent(`Checked in at OpenClaw Miami with ${success.name} 🦞`)}&url=${encodeURIComponent(imageState.imageUrl)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Share on X
+                    </a>
+                  </Button>
+                </div>
+              )}
+              <Button variant="hero" onClick={resetForNextCheckIn}>
+                Check In Another Person
+              </Button>
+            </CardContent>
+          </Card>
+        </main>
+      </div>
+    );
   }
 
   return (
@@ -353,45 +502,6 @@ const CheckIn = () => {
           </Card>
         </div>
 
-        {showStats && (
-          <Card className="mt-6 bg-card/80 backdrop-blur border-primary/20">
-            <CardHeader>
-              <CardTitle>Live Event Snapshot</CardTitle>
-              <CardDescription>
-                Anonymous responses only. Total check-ins: <strong>{stats.total}</strong>
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-5">
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="rounded-md border border-border p-4">
-                  <div className="text-sm text-muted-foreground">Deployed an agent</div>
-                  <div className="text-2xl font-display font-bold mt-1">{stats.deployedYes}</div>
-                  <div className="text-xs text-muted-foreground mt-1">{yesPercent}% of check-ins</div>
-                </div>
-                <div className="rounded-md border border-border p-4">
-                  <div className="text-sm text-muted-foreground">Not yet deployed</div>
-                  <div className="text-2xl font-display font-bold mt-1">{stats.deployedNo}</div>
-                  <div className="text-xs text-muted-foreground mt-1">{noPercent}% of check-ins</div>
-                </div>
-              </div>
-
-              <div>
-                <h2 className="font-display text-lg">Biggest obstacles people reported</h2>
-                {stats.obstacles.length ? (
-                  <ul className="mt-3 space-y-2">
-                    {stats.obstacles.map((item, index) => (
-                      <li key={`${item}-${index}`} className="rounded-md border border-border/80 bg-background/40 px-3 py-2 text-sm">
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="text-sm text-muted-foreground mt-2">No obstacles submitted yet.</p>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        )}
       </main>
     </div>
   );

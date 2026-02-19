@@ -119,6 +119,18 @@ Yes: set the same secrets locally and on Vercel when testing production behavior
 - You can provide extra event/domain guidance with `OPENROUTER_OPENCLAW_CONTEXT`.
 - If not set, deterministic heuristic grouping is used (no extra cost).
 
+### 7) Optional FAL share image generation
+
+- After successful check-in, a 1:1 social image can be generated from a reference shot.
+- Uses webhook callback plus status polling fallback.
+- Required env vars:
+  - `FAL_KEY`
+  - `CHECKIN_FAL_REFERENCE_IMAGE_URL` (public URL to your base image)
+  - `CHECKIN_PUBLIC_BASE_URL` (for webhook callback URL)
+  - `CHECKIN_FAL_WEBHOOK_TOKEN` (recommended)
+- Optional:
+  - `CHECKIN_FAL_MODEL` (default: `fal-ai/nano-banana/edit`)
+
 ## Tech Stack
 
 **React 18** · **TypeScript** · **Vite** · **Tailwind CSS** · **shadcn/ui** · **Framer Motion**

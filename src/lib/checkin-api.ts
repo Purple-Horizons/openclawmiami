@@ -49,6 +49,14 @@ export type CheckinReportResponse = {
   error?: string;
 };
 
+export type CheckinImageJob = {
+  jobId: string;
+  status: "queued" | "completed" | "failed";
+  imageUrl?: string;
+  error?: string;
+  attendeeName?: string;
+};
+
 async function postJson<T>(url: string, payload: unknown): Promise<T> {
   const response = await fetch(url, {
     method: "POST",
@@ -158,6 +166,26 @@ export async function fetchCheckinReport(token?: string): Promise<CheckinReportR
 
   if (!response.ok) {
     throw new Error(data.error ?? "Unable to load report");
+  }
+
+  return data;
+}
+
+export async function startCheckinImageJob(name: string): Promise<CheckinImageJob> {
+  return postJson<CheckinImageJob>("/api/checkin/image-start", { name });
+}
+
+export async function fetchCheckinImageJob(jobId: string): Promise<CheckinImageJob> {
+  const response = await fetch(`/api/checkin/image-status?jobId=${encodeURIComponent(jobId)}`, {
+    method: "GET",
+    headers: {
+      Accept: "application/json",
+    },
+  });
+
+  const data = (await response.json()) as CheckinImageJob & { error?: string };
+  if (!response.ok) {
+    throw new Error(data.error ?? "Unable to load image status");
   }
 
   return data;

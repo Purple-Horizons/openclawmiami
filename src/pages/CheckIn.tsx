@@ -70,6 +70,20 @@ function toAbsoluteUrl(value: string) {
   return `${window.location.origin}${value}`;
 }
 
+function resetMobileZoomState() {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  const active = document.activeElement;
+  if (active && active instanceof HTMLElement && typeof active.blur === "function") {
+    active.blur();
+  }
+
+  // Ensure the success card starts at top of viewport after form interactions.
+  window.scrollTo(0, 0);
+}
+
 const CheckIn = () => {
   const [email, setEmail] = useState("");
   const [lookupState, setLookupState] = useState<LookupState | null>(null);
@@ -263,6 +277,8 @@ const CheckIn = () => {
         deployedAgent: hasDeployedAgent,
         obstacle,
       });
+
+      resetMobileZoomState();
       setSuccess({
         name: toTitleCase(lookupState.name || "Attendee"),
         checkedInAt: result.checkedInAt ?? new Date().toISOString(),
@@ -366,13 +382,13 @@ const CheckIn = () => {
           ))}
         </div>
 
-        <main className="relative z-10 min-h-screen flex items-center justify-center px-6 py-10">
-          <Card className={`w-full max-w-2xl bg-card/85 backdrop-blur text-center ${themeCardClass}`}>
+        <main className="relative z-10 min-h-[100svh] flex items-start sm:items-center justify-center px-4 sm:px-6 pt-16 sm:py-10 pb-6 sm:pb-10">
+          <Card className={`w-full max-w-2xl max-h-[calc(100svh-1.25rem)] sm:max-h-none overflow-y-auto bg-card/85 backdrop-blur text-center ${themeCardClass}`}>
             <CardHeader className="items-center">
               <div className={`rounded-full p-4 border ${themeBadgeClass}`}>
                 <CheckCircle2 className={`h-16 w-16 ${themeIconClass}`} />
               </div>
-              <CardTitle className={`font-display text-4xl sm:text-5xl mt-4 ${themeTitleClass}`}>{successTitle}</CardTitle>
+              <CardTitle className={`font-display text-3xl sm:text-5xl mt-4 ${themeTitleClass}`}>{successTitle}</CardTitle>
               <CardDescription className="text-base sm:text-lg text-foreground/90">
                 <span className="font-display text-2xl text-foreground">{success.name}</span>
               </CardDescription>
@@ -382,7 +398,7 @@ const CheckIn = () => {
               <p className="text-xs text-muted-foreground">
                 Verified at {new Date(success.checkedInAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}
               </p>
-              <div className="w-full max-w-sm">
+              <div className="w-full max-w-[280px] sm:max-w-sm">
                 {imageState?.status === "completed" && imageState.imageUrl ? (
                   <motion.div
                     className={`relative mx-auto w-full aspect-square rounded-2xl overflow-hidden border ${themeImageFrameClass}`}

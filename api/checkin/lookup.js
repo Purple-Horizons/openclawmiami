@@ -41,6 +41,7 @@ export default async function handler(request, response) {
       found: true,
       name: attendee.name,
       alreadyCheckedIn: Boolean(existingEncrypted),
+      checkedInAt: String(existing?.checkedInAt ?? ""),
       source: String(attendee.source ?? "pre_registered"),
       approvalStatus: String(attendee.approvalStatus ?? "approved"),
       generatedImageUrl: String(existing?.generatedImageUrl ?? ""),

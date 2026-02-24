@@ -48,6 +48,7 @@ export default async function handler(request, response) {
           alreadyRegistered: true,
           name: existing.name,
           alreadyCheckedIn: Boolean(checkinEncrypted),
+          checkedInAt: String(checkin?.checkedInAt ?? ""),
           source: String(existing.source ?? "walk_in"),
           approvalStatus: String(existing.approvalStatus ?? "registered"),
           generatedImageUrl: String(checkin?.generatedImageUrl ?? ""),

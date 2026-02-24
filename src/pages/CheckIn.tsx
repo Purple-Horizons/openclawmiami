@@ -12,6 +12,7 @@ type LookupState = {
   found: boolean;
   name: string;
   alreadyCheckedIn: boolean;
+  checkedInAt?: string;
   alreadyRegistered?: boolean;
   source?: string;
   approvalStatus?: string;
@@ -23,6 +24,7 @@ type LookupState = {
 type SuccessState = {
   name: string;
   checkedInAt: string;
+  checkinType: "waitlist" | "new_registration" | "standard";
 };
 
 type ImageState = {
@@ -30,9 +32,12 @@ type ImageState = {
   status: "queued" | "completed" | "failed";
   imageUrl: string;
   error: string;
+  startedAt: number;
 };
 
 const CONFETTI_COLORS = ["#22c55e", "#14b8a6", "#f97316", "#ec4899", "#facc15", "#60a5fa"];
+const RECENT_GEN_SECONDS = [14.76, 14.82, 9.6, 11.3, 13.54, 18.05];
+const AVG_GEN_SECONDS = RECENT_GEN_SECONDS.reduce((sum, value) => sum + value, 0) / RECENT_GEN_SECONDS.length;
 
 function toTitleCase(value: string) {
   return value
@@ -83,6 +88,17 @@ const CheckIn = () => {
   const [obstacle, setObstacle] = useState("");
   const [success, setSuccess] = useState<SuccessState | null>(null);
   const [imageState, setImageState] = useState<ImageState | null>(null);
+  const [progressTick, setProgressTick] = useState(0);
+
+  const generationProgress = (() => {
+    if (!imageState || imageState.status !== "queued") {
+      return imageState?.status === "completed" ? 100 : 0;
+    }
+
+    const elapsedSec = Math.max(0, (Date.now() - imageState.startedAt) / 1000);
+    const raw = Math.round((elapsedSec / AVG_GEN_SECONDS) * 100);
+    return Math.min(95, Math.max(4, raw));
+  })();
 
   useEffect(() => {
     if (!imageState?.jobId || imageState.status !== "queued") {
@@ -98,6 +114,7 @@ const CheckIn = () => {
             status: "completed",
             imageUrl: latest.imageProxyUrl ?? latest.imageUrl ?? "",
             error: "",
+            startedAt: imageState.startedAt,
           });
         } else if (latest.status === "failed") {
           setImageState({
@@ -105,6 +122,7 @@ const CheckIn = () => {
             status: "failed",
             imageUrl: "",
             error: latest.error ?? "Image generation failed.",
+            startedAt: imageState.startedAt,
           });
         }
       } catch {
@@ -114,6 +132,18 @@ const CheckIn = () => {
 
     return () => window.clearInterval(timer);
   }, [imageState?.jobId, imageState?.status]);
+
+  useEffect(() => {
+    if (!imageState || imageState.status !== "queued") {
+      return;
+    }
+
+    const tick = window.setInterval(() => {
+      setProgressTick((value) => value + 1);
+    }, 300);
+
+    return () => window.clearInterval(tick);
+  }, [imageState?.status]);
 
   async function handleLookup(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -143,6 +173,7 @@ const CheckIn = () => {
         found: true,
         name: result.name ?? "Attendee",
         alreadyCheckedIn: Boolean(result.alreadyCheckedIn),
+        checkedInAt: result.checkedInAt ?? "",
         alreadyRegistered: false,
         source: result.source ?? "pre_registered",
         approvalStatus: result.approvalStatus ?? "approved",
@@ -190,6 +221,7 @@ const CheckIn = () => {
         found: true,
         name: result.name,
         alreadyCheckedIn: Boolean(result.alreadyCheckedIn),
+        checkedInAt: result.checkedInAt ?? "",
         alreadyRegistered: Boolean(result.alreadyRegistered),
         source: result.source ?? "walk_in",
         approvalStatus: result.approvalStatus ?? "registered",
@@ -234,6 +266,12 @@ const CheckIn = () => {
       setSuccess({
         name: toTitleCase(lookupState.name || "Attendee"),
         checkedInAt: result.checkedInAt ?? new Date().toISOString(),
+        checkinType:
+          lookupState.source === "waitlist"
+            ? "waitlist"
+            : lookupState.source === "walk_in"
+              ? "new_registration"
+              : "standard",
       });
       try {
         const job = await startCheckinImageJob(toTitleCase(lookupState.name || "Builder"), email);
@@ -242,6 +280,7 @@ const CheckIn = () => {
           status: "queued",
           imageUrl: "",
           error: "",
+          startedAt: Date.now(),
         });
       } catch {
         setImageState({
@@ -249,6 +288,7 @@ const CheckIn = () => {
           status: "failed",
           imageUrl: "",
           error: "We checked you in, but the share image generator is taking a coffee break.",
+          startedAt: Date.now(),
         });
       }
     } catch (submitError) {
@@ -264,11 +304,46 @@ const CheckIn = () => {
       ? toAbsoluteUrl(`/api/checkin/share?jobId=${encodeURIComponent(imageState.jobId)}`)
       : "";
     const downloadName = `openclawmiami-${toSlug(success.name) || "attendee"}.png`;
+    const isWaitlist = success.checkinType === "waitlist";
+    const isNewRegistration = success.checkinType === "new_registration";
+    const themeGlowClass = isWaitlist
+      ? "bg-yellow-400/20"
+      : isNewRegistration
+        ? "bg-red-500/20"
+        : "bg-green-500/20";
+    const themeCardClass = isWaitlist
+      ? "border-yellow-400/65 shadow-[0_0_75px_rgba(250,204,21,0.26)]"
+      : isNewRegistration
+        ? "border-red-400/65 shadow-[0_0_75px_rgba(248,113,113,0.26)]"
+        : "border-green-400/55 shadow-[0_0_60px_rgba(34,197,94,0.22)]";
+    const themeBadgeClass = isWaitlist
+      ? "bg-yellow-500/18 border-yellow-400/70"
+      : isNewRegistration
+        ? "bg-red-500/18 border-red-400/70"
+        : "bg-green-500/20 border-green-400/60";
+    const themeIconClass = isWaitlist ? "text-yellow-300" : isNewRegistration ? "text-red-300" : "text-green-400";
+    const themeTitleClass = isWaitlist ? "text-yellow-300" : isNewRegistration ? "text-red-300" : "text-green-300";
+    const themeImageFrameClass = isWaitlist
+      ? "border-yellow-400/55 shadow-[0_45px_140px_rgba(250,204,21,0.30)]"
+      : isNewRegistration
+        ? "border-red-400/55 shadow-[0_45px_140px_rgba(248,113,113,0.30)]"
+        : "border-primary/50 shadow-[0_45px_140px_rgba(34,197,94,0.36)]";
+    const themeWaitingBoxClass = isWaitlist
+      ? "border-yellow-400/50"
+      : isNewRegistration
+        ? "border-red-400/50"
+        : "border-green-400/40";
+    const themeSpinnerClass = isWaitlist
+      ? "border-yellow-300/40 border-t-yellow-300"
+      : isNewRegistration
+        ? "border-red-300/40 border-t-red-300"
+        : "border-green-300/40 border-t-green-300";
+    const successTitle = isWaitlist ? "Waitlist Check-In" : isNewRegistration ? "New Registration" : "Checked In";
 
     return (
       <div className="min-h-screen bg-background text-foreground relative overflow-hidden">
         <div className="absolute inset-0 bg-glow" />
-        <div className="absolute top-10 left-1/2 -translate-x-1/2 w-[640px] h-[640px] rounded-full bg-green-500/20 blur-[140px]" />
+        <div className={`absolute top-10 left-1/2 -translate-x-1/2 w-[640px] h-[640px] rounded-full blur-[140px] ${themeGlowClass}`} />
 
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
           {Array.from({ length: 36 }).map((_, index) => (
@@ -292,12 +367,12 @@ const CheckIn = () => {
         </div>
 
         <main className="relative z-10 min-h-screen flex items-center justify-center px-6 py-10">
-          <Card className="w-full max-w-2xl bg-card/85 backdrop-blur border-green-400/50 shadow-[0_0_60px_rgba(34,197,94,0.22)] text-center">
+          <Card className={`w-full max-w-2xl bg-card/85 backdrop-blur text-center ${themeCardClass}`}>
             <CardHeader className="items-center">
-              <div className="rounded-full bg-green-500/20 p-4 border border-green-400/60">
-                <CheckCircle2 className="h-16 w-16 text-green-400" />
+              <div className={`rounded-full p-4 border ${themeBadgeClass}`}>
+                <CheckCircle2 className={`h-16 w-16 ${themeIconClass}`} />
               </div>
-              <CardTitle className="font-display text-4xl sm:text-5xl mt-4 text-green-300">Checked In</CardTitle>
+              <CardTitle className={`font-display text-4xl sm:text-5xl mt-4 ${themeTitleClass}`}>{successTitle}</CardTitle>
               <CardDescription className="text-base sm:text-lg text-foreground/90">
                 <span className="font-display text-2xl text-foreground">{success.name}</span>
               </CardDescription>
@@ -310,7 +385,7 @@ const CheckIn = () => {
               <div className="w-full max-w-sm">
                 {imageState?.status === "completed" && imageState.imageUrl ? (
                   <motion.div
-                    className="relative mx-auto w-full aspect-square rounded-2xl overflow-hidden border border-primary/50 shadow-[0_45px_140px_rgba(34,197,94,0.36)]"
+                    className={`relative mx-auto w-full aspect-square rounded-2xl overflow-hidden border ${themeImageFrameClass}`}
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1, y: [0, -5, 0] }}
                     transition={{ duration: 0.45, y: { duration: 4.5, repeat: Infinity, ease: "easeInOut" } }}
@@ -337,11 +412,28 @@ const CheckIn = () => {
                     />
                   </motion.div>
                 ) : (
-                  <div className="mx-auto w-full aspect-square rounded-2xl border border-primary/25 bg-background/50 flex flex-col items-center justify-center gap-3 px-6">
-                    <div className="h-10 w-10 rounded-full border-2 border-primary/40 border-t-primary animate-spin" />
+                  <div className={`mx-auto w-full aspect-square rounded-2xl border bg-background/50 flex flex-col items-center justify-center gap-3 px-6 ${themeWaitingBoxClass}`}>
+                    <div className={`h-10 w-10 rounded-full border-2 animate-spin ${themeSpinnerClass}`} />
                     <p className="text-sm text-muted-foreground text-center">
                       Something special is being generated...
                     </p>
+                    <div className="w-full max-w-xs">
+                      <div className="mb-1 flex items-center justify-between text-xs text-muted-foreground">
+                        <span>Generating</span>
+                        <span>{generationProgress}%</span>
+                      </div>
+                      <div className="h-2 w-full rounded-full bg-foreground/10 overflow-hidden">
+                        <div
+                          className={`h-full transition-[width] duration-300 ${
+                            isWaitlist ? "bg-yellow-300" : isNewRegistration ? "bg-red-300" : "bg-green-300"
+                          }`}
+                          style={{ width: `${generationProgress}%` }}
+                        />
+                      </div>
+                      <p className="mt-2 text-[11px] text-muted-foreground text-center">
+                        Typical generation time: about {AVG_GEN_SECONDS.toFixed(1)}s
+                      </p>
+                    </div>
                     {imageState?.status === "failed" && (
                       <p className="text-xs text-destructive text-center">{imageState.error || "Image generation failed."}</p>
                     )}
@@ -521,11 +613,27 @@ const CheckIn = () => {
                 <p className="text-sm text-muted-foreground">Find your attendee record first.</p>
               ) : lookupState.alreadyCheckedIn ? (
                 <div className="space-y-3">
-                  <p className="text-sm text-accent">
-                    {lookupState.alreadyRegistered
-                      ? "Already registered and already checked in."
-                      : "You are already checked in. Thanks for being here."}
-                  </p>
+                  <div
+                    className={`rounded-md border px-3 py-2 text-sm ${
+                      lookupState.source === "waitlist"
+                        ? "border-yellow-400/40 bg-yellow-400/10 text-yellow-100"
+                        : lookupState.source === "walk_in"
+                          ? "border-red-400/40 bg-red-400/10 text-red-100"
+                          : "border-green-400/40 bg-green-400/10 text-green-100"
+                    }`}
+                  >
+                    {lookupState.source === "waitlist"
+                      ? "Already checked in: Waitlist Check-In"
+                      : lookupState.source === "walk_in"
+                        ? "Already checked in: New Registration"
+                        : "Already checked in: Checked In"}
+                    {lookupState.checkedInAt ? (
+                      <div className="mt-1 text-xs opacity-85">
+                        Verified at{" "}
+                        {new Date(lookupState.checkedInAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}
+                      </div>
+                    ) : null}
+                  </div>
                   {lookupState.generatedImageUrl ? (
                     <div className="rounded-xl border border-primary/30 bg-background/40 p-3">
                       <p className="text-xs text-muted-foreground mb-2">

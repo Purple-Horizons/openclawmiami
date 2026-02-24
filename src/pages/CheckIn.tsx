@@ -159,6 +159,20 @@ const CheckIn = () => {
     return () => window.clearInterval(tick);
   }, [imageState?.status]);
 
+  useEffect(() => {
+    if (!success) {
+      return;
+    }
+
+    const raf = window.requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    });
+
+    return () => window.cancelAnimationFrame(raf);
+  }, [success]);
+
   async function handleLookup(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);

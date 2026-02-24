@@ -48,6 +48,8 @@ export default async function handler(request, response) {
           alreadyRegistered: true,
           name: existing.name,
           alreadyCheckedIn: Boolean(checkinEncrypted),
+          source: String(existing.source ?? "walk_in"),
+          approvalStatus: String(existing.approvalStatus ?? "registered"),
           generatedImageUrl: String(checkin?.generatedImageUrl ?? ""),
           generatedShareUrl: String(checkin?.generatedShareUrl ?? ""),
         },
@@ -69,6 +71,8 @@ export default async function handler(request, response) {
         alreadyRegistered: false,
         name: attendee.name,
         alreadyCheckedIn: false,
+        source: String(attendee.source ?? "walk_in"),
+        approvalStatus: String(attendee.approvalStatus ?? "registered"),
       },
       response,
     );

@@ -8,7 +8,8 @@ export async function resolveAttendeeByEmail(email) {
     return {
       emailHash: preRegistered.emailHash,
       name: preRegistered.name,
-      source: "pre_registered",
+      source: preRegistered.approvalStatus === "waitlist" ? "waitlist" : "pre_registered",
+      approvalStatus: preRegistered.approvalStatus ?? "approved",
       referredBy: "",
     };
   }
@@ -28,6 +29,7 @@ export async function resolveAttendeeByEmail(email) {
     emailHash,
     name: String(parsed.name ?? "Attendee").trim() || "Attendee",
     source: "walk_in",
+    approvalStatus: "registered",
     referredBy: String(parsed.referredBy ?? "").trim(),
   };
 }
@@ -54,6 +56,7 @@ export async function registerWalkInAttendee(payload) {
     emailHash,
     name,
     source: "walk_in",
+    approvalStatus: "registered",
     referredBy,
   };
 }

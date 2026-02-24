@@ -138,6 +138,33 @@ function pickHeaderIndex(headers, options) {
   return -1;
 }
 
+function normalizeApprovalStatus(value) {
+  const status = String(value ?? "").trim().toLowerCase();
+  if (status === "waitlist") {
+    return "waitlist";
+  }
+  if (status === "approved") {
+    return "approved";
+  }
+  if (status === "declined") {
+    return "declined";
+  }
+  return "approved";
+}
+
+function statusRank(status) {
+  if (status === "approved") {
+    return 3;
+  }
+  if (status === "waitlist") {
+    return 2;
+  }
+  if (status === "declined") {
+    return 1;
+  }
+  return 0;
+}
+
 async function main() {
   const args = parseArgs(process.argv.slice(2));
   const inputPath = resolve(process.cwd(), args.input);
@@ -152,14 +179,15 @@ async function main() {
   const headers = rows[0].map(normalizeHeader);
   const emailIndex = pickHeaderIndex(headers, ["contact - email", "email", "e-mail"]);
   const nameIndex = pickHeaderIndex(headers, ["name", "full name"]);
+  const approvalStatusIndex = pickHeaderIndex(headers, ["approval_status", "approval status", "status"]);
 
   if (emailIndex === -1) {
     throw new Error("Could not find required Email column.");
   }
   requireEncryptionKey();
 
-  const attendees = {};
-
+  // Build deterministic map with duplicate-email priority handling.
+  const seen = new Map();
   for (let i = 1; i < rows.length; i += 1) {
     const row = rows[i];
     const email = normalizeEmail(row[emailIndex]);
@@ -167,25 +195,37 @@ async function main() {
       continue;
     }
 
+    const approvalStatus =
+      approvalStatusIndex !== -1 ? normalizeApprovalStatus(row[approvalStatusIndex]) : "approved";
+    if (approvalStatus === "declined") {
+      continue;
+    }
+
     const rawName = nameIndex !== -1 ? String(row[nameIndex] ?? "").trim() : "";
     const fallbackName = email.split("@")[0];
     const name = rawName || fallbackName;
+    const current = seen.get(email);
 
-    const emailHash = hashEmail(email, args.pepper);
-    if (!attendees[emailHash]) {
-      attendees[emailHash] = {
-        n: encryptJson({ name }),
-      };
+    if (!current || statusRank(approvalStatus) >= statusRank(current.approvalStatus)) {
+      seen.set(email, { name, approvalStatus });
     }
+  }
+
+  const dedupedAttendees = {};
+  for (const [email, value] of seen.entries()) {
+    const emailHash = hashEmail(email, args.pepper);
+    dedupedAttendees[emailHash] = {
+      n: encryptJson({ name: value.name, approvalStatus: value.approvalStatus }),
+    };
   }
 
   const payload = {
     version: 1,
     generatedAt: new Date().toISOString(),
-    totalAttendees: Object.keys(attendees).length,
+    totalAttendees: Object.keys(dedupedAttendees).length,
     hashAlgorithm: "sha256",
     nameEncoding: "encrypted-json-aes-256-gcm",
-    attendees,
+    attendees: dedupedAttendees,
   };
 
   await writeFile(outputPath, JSON.stringify(payload, null, 2), "utf8");

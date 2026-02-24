@@ -13,6 +13,8 @@ type LookupState = {
   name: string;
   alreadyCheckedIn: boolean;
   alreadyRegistered?: boolean;
+  source?: string;
+  approvalStatus?: string;
   generatedImageUrl?: string;
   generatedShareUrl?: string;
   origin?: "lookup" | "register";
@@ -142,6 +144,8 @@ const CheckIn = () => {
         name: result.name ?? "Attendee",
         alreadyCheckedIn: Boolean(result.alreadyCheckedIn),
         alreadyRegistered: false,
+        source: result.source ?? "pre_registered",
+        approvalStatus: result.approvalStatus ?? "approved",
         generatedImageUrl: result.generatedImageUrl ?? "",
         generatedShareUrl: result.generatedShareUrl ?? "",
         origin: "lookup" as const,
@@ -187,6 +191,8 @@ const CheckIn = () => {
         name: result.name,
         alreadyCheckedIn: Boolean(result.alreadyCheckedIn),
         alreadyRegistered: Boolean(result.alreadyRegistered),
+        source: result.source ?? "walk_in",
+        approvalStatus: result.approvalStatus ?? "registered",
         generatedImageUrl: result.generatedImageUrl ?? "",
         generatedShareUrl: result.generatedShareUrl ?? "",
         origin: "register",
@@ -410,14 +416,35 @@ const CheckIn = () => {
               </form>
 
               {lookupState?.found && (
-                <div className="mt-5 rounded-md border border-accent/30 bg-accent/10 p-3 text-sm">
-                  {lookupState.origin === "register" && lookupState.alreadyRegistered
-                    ? `Already registered: ${lookupState.name}`
-                    : lookupState.origin === "register"
-                      ? `Walk-in registered: ${lookupState.name}`
-                      : lookupState.name && lookupState.name !== "Attendee"
-                        ? `Attendee found: ${lookupState.name}`
-                        : "Attendee found. You are on the list."}
+                <div
+                  className={`mt-5 rounded-md border p-3 text-sm flex items-center gap-2 ${
+                    lookupState.source === "waitlist"
+                      ? "border-yellow-400/40 bg-yellow-400/10 text-yellow-100"
+                      : lookupState.source === "walk_in" && lookupState.origin === "register" && !lookupState.alreadyRegistered
+                        ? "border-red-400/40 bg-red-400/10 text-red-100"
+                        : "border-accent/30 bg-accent/10"
+                  }`}
+                >
+                  <CheckCircle2
+                    className={`h-4 w-4 ${
+                      lookupState.source === "waitlist"
+                        ? "text-yellow-300"
+                        : lookupState.source === "walk_in" && lookupState.origin === "register" && !lookupState.alreadyRegistered
+                          ? "text-red-300"
+                          : "text-accent"
+                    }`}
+                  />
+                  <span>
+                    {lookupState.source === "waitlist"
+                      ? `Waitlist discovered: ${lookupState.name}`
+                      : lookupState.origin === "register" && lookupState.alreadyRegistered
+                        ? `Already registered: ${lookupState.name}`
+                        : lookupState.origin === "register"
+                          ? `New walk-in registered: ${lookupState.name}`
+                          : lookupState.name && lookupState.name !== "Attendee"
+                            ? `Attendee found: ${lookupState.name}`
+                            : "Attendee found. You are on the list."}
+                  </span>
                 </div>
               )}
 

@@ -36,16 +36,22 @@ export async function findAttendeeByEmail(email) {
   }
 
   let name = "Attendee";
+  let approvalStatus = "approved";
   if (attendeeRecord && typeof attendeeRecord === "object" && typeof attendeeRecord.n === "string") {
     const decoded = decryptJson(attendeeRecord.n);
     const candidate = String(decoded?.name ?? "").trim();
     if (candidate) {
       name = candidate;
     }
+    const statusCandidate = String(decoded?.approvalStatus ?? "").trim().toLowerCase();
+    if (statusCandidate === "waitlist" || statusCandidate === "approved") {
+      approvalStatus = statusCandidate;
+    }
   }
 
   return {
     emailHash,
     name,
+    approvalStatus,
   };
 }

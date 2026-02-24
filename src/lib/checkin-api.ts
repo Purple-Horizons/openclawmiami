@@ -2,6 +2,8 @@ export type LookupResponse = {
   found: boolean;
   name?: string;
   alreadyCheckedIn?: boolean;
+  source?: string;
+  approvalStatus?: string;
   generatedImageUrl?: string;
   generatedShareUrl?: string;
   error?: string;
@@ -12,6 +14,8 @@ export type RegisterResponse = {
   alreadyRegistered: boolean;
   name: string;
   alreadyCheckedIn: boolean;
+  source?: string;
+  approvalStatus?: string;
   generatedImageUrl?: string;
   generatedShareUrl?: string;
   error?: string;

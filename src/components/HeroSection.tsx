@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 
 const HeroSection = () => {
   return (
@@ -40,6 +41,9 @@ const HeroSection = () => {
             <a href="https://discord.com/channels/1456350064065904867/1464825842264703221" target="_blank" rel="noopener noreferrer">
               Join the Community
             </a>
+          </Button>
+          <Button variant="hero-outline" size="lg" asChild>
+            <Link to="/videos">Watch Videos</Link>
           </Button>
         </motion.div>
 

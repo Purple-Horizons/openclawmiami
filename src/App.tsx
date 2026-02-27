@@ -9,6 +9,7 @@ import Index from "./pages/Index";
 import CheckIn from "./pages/CheckIn";
 import CheckInSnapshot from "./pages/CheckInSnapshot";
 import CheckInReport from "./pages/CheckInReport";
+import Videos from "./pages/Videos";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,6 +25,7 @@ const App = () => (
           <Route path="/check-in" element={<CheckIn />} />
           <Route path="/check-in/snapshot" element={<CheckInSnapshot />} />
           <Route path="/check-in/report" element={<CheckInReport />} />
+          <Route path="/videos" element={<Videos />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

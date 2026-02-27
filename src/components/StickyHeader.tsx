@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 
 const StickyHeader = () => {
   const [scrolled, setScrolled] = useState(false);
@@ -20,15 +21,20 @@ const StickyHeader = () => {
       }`}
     >
       <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
-        <a href="#" className="font-display font-bold text-lg text-foreground flex items-center gap-2">
+        <Link to="/" className="font-display font-bold text-lg text-foreground flex items-center gap-2">
           <span className="text-2xl">🦞</span>
           <span>OpenClaw<span className="text-gradient-sunset">Miami</span></span>
-        </a>
-        <Button variant="hero" size="sm" asChild>
-          <a href="https://lu.ma/openclaw" target="_blank" rel="noopener noreferrer">
-            See Events
-          </a>
-        </Button>
+        </Link>
+        <div className="flex items-center gap-2">
+          <Button variant="hero-outline" size="sm" asChild>
+            <Link to="/videos">Watch Videos</Link>
+          </Button>
+          <Button variant="hero" size="sm" asChild>
+            <a href="https://lu.ma/openclaw" target="_blank" rel="noopener noreferrer">
+              See Events
+            </a>
+          </Button>
+        </div>
       </div>
     </motion.header>
   );
